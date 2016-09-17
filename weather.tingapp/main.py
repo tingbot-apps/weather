@@ -5,8 +5,11 @@ from tingbot.graphics import Image
 import requests
 
 ######
-# NOTE: change this to your location
-api_location = 'London, UK'
+# NOTE: change these settings for your location
+options = {
+    'location': 'London, UK',
+    'unit': 'c'
+}
 ######
 
 data = {
@@ -20,25 +23,25 @@ data = {
 @tingbot.every(minutes=10)
 def refresh_data():
     print 'refreshing...'
-    
+
     r = requests.get('https://query.yahooapis.com/v1/public/yql', params={
-        'q': 'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="%s") and u="c"' % api_location,
+        'q': 'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="%s") and u="%s"' % (options['location'], options['unit']),
         'format': 'json',
     })
-    
+
     r.raise_for_status()
-    
+
     api_data = r.json()
     import pprint
     pprint.pprint(api_data)
-    
+
     channel = api_data['query']['results']['channel']
     item = channel['item']
     condition = item['condition']
     data['location'] = channel['location']['city']
     data['temp'] = condition['temp']
     data['description'] = condition['text']
-    
+
     code = int(condition['code'])
     gif_name = code_to_gif_map[code]
     data['background_image'] = Image.load(gif_name)
@@ -48,7 +51,7 @@ def loop():
         screen.image(data['background_image'])
     else:
         screen.fill(color='black')
-    
+
     screen.text (
         data['location'],
         xy=(22,30),
