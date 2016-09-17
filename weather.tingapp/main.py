@@ -4,7 +4,10 @@ from tingbot import screen
 from tingbot.graphics import Image
 import requests
 
+######
+# NOTE: change this to your location
 api_location = 'London, UK'
+######
 
 data = {
     'location': '',
